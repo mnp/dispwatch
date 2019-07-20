@@ -1,9 +1,12 @@
-;;; dispwatch.el --- watch displays
+;;; dispwatch.el --- Watch displays for resolution changes -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018 Mitchell Perilstein
 
 ;; Author: Mitchell Perilstein <mitchell.perilstein@gmail.com>
-;; Keywords:
+;; Keywords: frames
+;; URL: https://github.com/mnp/dispwatch
+;; Version: 0
+;; Package-Requires: ()
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -25,8 +28,8 @@
 ;;
 ;; Usage
 ;;
-;; Require or use-package this. Make a hook function which takes one argument, a new display
-;; string like "1024x768". Add your hook to `dispwatch-display-change-hooks'. You will get
+;; Require or use-package this.  Make a hook function which takes one argument, a new display
+;; string like "1024x768".  Add your hook to `dispwatch-display-change-hooks'.  You will get
 ;; called when that changes, eg by removing or adding a monitor.  Then call `dispwatch-enable'
 ;; to get started and `dispwatch-disable' to stop.
 ;;
@@ -48,16 +51,17 @@
 ;;; Code:
 
 (defconst dispwatch-interval 5
-  "Frequency to check dispaly, in seconds. Checking operation does not shell out of Emacs so
-there isn't much penalty.")
+  "Frequency to check display, in seconds.
+Checking operation does not shell out of Emacs so there isn't much penalty.")
+
+(defvar dispwatch-display-change-hooks nil
+  "List of hook functions called when a display change is detected.
+Each takes one argument: the new display geometry string (WIDTHxHEIGHT).
+These hooks are run when a display change is detected.")
 
 (defvar dispwatch-timer nil)
 
 (defvar dispwatch-current-display nil)
-
-(defvar dispwatch-display-change-hooks nil
-  "List of functions which take one argument: the new display geometry string (WIDTHxHEIGHT).
-These hooks are run when a display change is detected.")
 
 (defun dispwatch-enable ()
   "Enable display reconfiguration detection."
@@ -69,13 +73,15 @@ These hooks are run when a display change is detected.")
 (defun dispwatch-disable ()
   "Disable display reconfiguration detection."
   (interactive)
-  (cancel-timer dispwatch-timer)
-  (setq dispwatch-timer nil)
-  (message "dispwatch disabled"))
+  (if dispwatch-timer
+      (progn
+	(cancel-timer dispwatch-timer)
+	(setq dispwatch-timer nil)
+	(message "dispwatch disabled"))))
 
 (defun dispwatch--get-display()
-  "Current display, as a string WxH. It's a string so we can use it as
-an alist key elsewhere."
+  "Current display, as a string WxH.
+It's a string so we can use it as an alist key elsewhere."
   (format "%dx%d" (display-pixel-width) (display-pixel-height)))
 
 (defun dispwatch--check-display()
@@ -87,3 +93,5 @@ an alist key elsewhere."
 	  (run-hook-with-args 'dispwatch-display-change-hooks dispwatch-current-display)))))
 
 (provide 'dispwatch)
+
+;;; dispwatch.el ends here
