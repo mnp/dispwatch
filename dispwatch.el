@@ -36,23 +36,32 @@
 ;; Example
 ;;
 ;; (defun my-display-changed-hook (disp)
-;;   (cond ((equalp disp "3840x1080")   ; laptop + ext monitor
-;; 	 (setq font-size-pt 10))
-;; 	((equalp disp "1920x1080")      ; just laptop
-;; 	 (setq font-size-pt 12))))
+;;   (cond ((equalp disp '(3840 . 1080)   ; laptop + ext monitor
+;;	 (setq font-size-pt 10))
+;;	((equalp disp "1920x1080")      ; just laptop
+;;	 (setq font-size-pt 12))))
 ;;
 ;; (add-to-list 'load-path (expand-file-name "~/prj/dispwatch/"))
 ;;
 ;; (use-package dispwatch
 ;;   :config (progn
-;; 	  (add-hook 'dispwatch-display-change-hooks #'my-display-changed-hook)
-;; 	  (dispwatch-enable)))
+;;	  (add-hook 'dispwatch-display-change-hooks #'my-display-changed-hook)
+;;	  (dispwatch-enable)))
 
 ;;; Code:
 
-(defconst dispwatch-interval 5
+;; Local variables
+(defgroup dispwatch nil
+  "Minor mode for watching display geometry changes."
+  :prefix "dispwatch-"
+  :group 'Environment)
+
+(defcustom dispwatch-interval 2
   "Frequency to check display, in seconds.
-Checking operation does not shell out of Emacs so there isn't much penalty.")
+Checking operation does not shell out of Emacs so there isn't much penalty."
+  :type 'integer
+  :group 'dispwatch
+  :safe #'integerp)
 
 (defvar dispwatch-display-change-hooks nil
   "List of hook functions called when a display change is detected.
@@ -63,34 +72,51 @@ These hooks are run when a display change is detected.")
 
 (defvar dispwatch-current-display nil)
 
+(define-minor-mode dispwatch-mode
+  "Toggle dispwatch mode.
+     Interactively with no argument, this command toggles the mode.
+     A positive prefix argument enables the mode, any other prefix
+     argument disables it.  From Lisp, argument omitted or nil enables
+     the mode, `toggle' toggles the state.
+
+     When dispwatch mode is enabled, the display configuration is checked every
+     `dispwatch-interval' seconds and if a change is observed, the hook functions in
+     `dispwatch-display-change-hooks' with the new display resolution."
+  nil	      ;; The initial value.
+  "dispwatch" ;; The indicator for the mode line.
+  nil	      ;; The minor mode bindings.
+  :group 'dispwatch
+  :after-hook (if dispwatch-mode
+		  (dispwatch-enable)
+		  (dispwatch-disable)))
+
 (defun dispwatch-enable ()
   "Enable display reconfiguration detection."
   (interactive)
   (setq dispwatch-current-display (dispwatch--get-display))
-  (setq dispwatch-timer (run-at-time dispwatch-interval dispwatch-interval #'dispwatch--check-display))
+  (unless dispwatch-timer
+    (setq dispwatch-timer (run-at-time dispwatch-interval dispwatch-interval #'dispwatch--check-display)))
   (message "dispwatch enabled"))
 
 (defun dispwatch-disable ()
   "Disable display reconfiguration detection."
   (interactive)
-  (if dispwatch-timer
-      (progn
-	(cancel-timer dispwatch-timer)
-	(setq dispwatch-timer nil)
-	(message "dispwatch disabled"))))
+  (when dispwatch-timer
+    (cancel-timer dispwatch-timer)
+    (setq dispwatch-timer nil)
+    (message "dispwatch disabled")))
 
 (defun dispwatch--get-display()
-  "Current display, as a string WxH.
+  "Current display, as a cons (W . H).
 It's a string so we can use it as an alist key elsewhere."
-  (format "%dx%d" (display-pixel-width) (display-pixel-height)))
+  (cons (display-pixel-width) (display-pixel-height)))
 
 (defun dispwatch--check-display()
   "Did it change? Run hooks if so."
   (let ((new (dispwatch--get-display)))
-    (if (not (equal new dispwatch-current-display))
-	(progn
-	  (setq dispwatch-current-display new)
-	  (run-hook-with-args 'dispwatch-display-change-hooks dispwatch-current-display)))))
+    (unless (equal new dispwatch-current-display)
+      (setq dispwatch-current-display new)
+      (run-hook-with-args 'dispwatch-display-change-hooks dispwatch-current-display))))
 
 (provide 'dispwatch)
 
