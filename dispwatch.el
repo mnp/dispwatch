@@ -28,26 +28,27 @@
 ;;
 ;; Usage
 ;;
-;; Require or use-package this.  Make a hook function which takes one argument, a new display
-;; string like "1024x768".  Add your hook to `dispwatch-display-change-hooks'.  You will get
-;; called when that changes, eg by removing or adding a monitor.  Then call `dispwatch-enable'
-;; to get started and `dispwatch-disable' to stop.
-;;
+;; Require or use-package this. Make a hook function which takes one argument, a pair of
+;; pixel width and height, like `(1024 . 768)`, then add your hook to
+;; `dispwatch-display-change-hooks`. You will get called when that changes, eg by removing
+;; or adding a monitor.  Then call `(dispwatch-mode 1)` to get started and `(dispwatch-mode -1)`
+;; to stop. `(dispwatch-mode)` toggles.
+;; 
 ;; Example
+;; 
+;;  (defun my-display-changed-hook (disp)
+;;    (message "rejiggering for %s" disp)
+;;    (cond ((equal disp '(3840 . 1080))   ; laptop + ext monitor
+;;           (setq font-size-pt 10))
+;;          ((equal disp '(1920 . 1080))    ; just laptop
+;;           (setq font-size-pt 11))
+;;          (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
 ;;
-;; (defun my-display-changed-hook (disp)
-;;   (cond ((equalp disp '(3840 . 1080)   ; laptop + ext monitor
-;;	 (setq font-size-pt 10))
-;;	((equalp disp "1920x1080")      ; just laptop
-;;	 (setq font-size-pt 12))))
-;;
-;; (add-to-list 'load-path (expand-file-name "~/prj/dispwatch/"))
-;;
-;; (use-package dispwatch
-;;   :config (progn
-;;	  (add-hook 'dispwatch-display-change-hooks #'my-display-changed-hook)
-;;	  (dispwatch-enable)))
-
+;;   (use-package dispwatch
+;;     :config (and
+;;        (add-hook 'dispwatch-display-change-hooks #'my-display-changed-hook)
+;;        (dispwatch-mode 1)))
+;; 
 ;;; Code:
 
 ;; Local variables
@@ -87,10 +88,10 @@ These hooks are run when a display change is detected.")
   nil	      ;; The minor mode bindings.
   :group 'dispwatch
   :after-hook (if dispwatch-mode
-		  (dispwatch-enable)
-		  (dispwatch-disable)))
+		  (dispwatch--enable)
+		  (dispwatch--disable)))
 
-(defun dispwatch-enable ()
+(defun dispwatch--enable ()
   "Enable display reconfiguration detection."
   (interactive)
   (setq dispwatch-current-display (dispwatch--get-display))
@@ -98,7 +99,7 @@ These hooks are run when a display change is detected.")
     (setq dispwatch-timer (run-at-time dispwatch-interval dispwatch-interval #'dispwatch--check-display)))
   (message "dispwatch enabled"))
 
-(defun dispwatch-disable ()
+(defun dispwatch--disable ()
   "Disable display reconfiguration detection."
   (interactive)
   (when dispwatch-timer
