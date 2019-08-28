@@ -28,11 +28,11 @@
 ;;
 ;; Usage
 ;;
-;; Require or use-package this. Make a hook function which takes one argument, a pair of
+;; Require or use-package this.  Make a hook function which takes one argument, a pair of
 ;; pixel width and height, like `(1024 . 768)`, then add your hook to
-;; `dispwatch-display-change-hooks`. You will get called when that changes, eg by removing
+;; `dispwatch-display-change-hooks`.  You will get called when that changes, eg by removing
 ;; or adding a monitor.  Then call `(dispwatch-mode 1)` to get started and `(dispwatch-mode -1)`
-;; to stop. `(dispwatch-mode)` toggles.
+;; to stop.  `(dispwatch-mode)` toggles.
 ;; 
 ;; Example
 ;; 
