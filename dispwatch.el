@@ -1,12 +1,12 @@
 ;;; dispwatch.el --- Watch displays for resolution changes -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018 Mitchell Perilstein
+;; Copyright (C) 2018-2019 Mitchell Perilstein
 
 ;; Author: Mitchell Perilstein <mitchell.perilstein@gmail.com>
 ;; Keywords: frames
 ;; URL: https://github.com/mnp/dispwatch
 ;; Version: 0
-;; Package-Requires: ()
+;; Package-Requires: ((emacs "24.1"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
