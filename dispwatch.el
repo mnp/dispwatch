@@ -1,4 +1,4 @@
-;;; dispwatch.el --- Watch displays for resolution changes -*- lexical-binding: t -*-
+;;; dispwatch.el --- Watch displays for configuration changes -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018-2019 Mitchell Perilstein
 
@@ -33,9 +33,9 @@
 ;; `dispwatch-display-change-hooks`.  You will get called when that changes, eg by removing
 ;; or adding a monitor.  Then call `(dispwatch-mode 1)` to get started and `(dispwatch-mode -1)`
 ;; to stop.  `(dispwatch-mode)` toggles.
-;; 
+;;
 ;; Example
-;; 
+;;
 ;;  (defun my-display-changed-hook (disp)
 ;;    (message "rejiggering for %s" disp)
 ;;    (cond ((equal disp '(3840 . 1080))   ; laptop + ext monitor
@@ -48,7 +48,7 @@
 ;;     :config (and
 ;;        (add-hook 'dispwatch-display-change-hooks #'my-display-changed-hook)
 ;;        (dispwatch-mode 1)))
-;; 
+;;
 ;;; Code:
 
 ;; Local variables
@@ -108,16 +108,21 @@ These hooks are run when a display change is detected.")
     (message "dispwatch disabled")))
 
 (defun dispwatch--get-display()
-  "Current display, as a cons (W . H).
-It's a string so we can use it as an alist key elsewhere."
-  (cons (display-pixel-width) (display-pixel-height)))
+  "Current display, to detect future changes."
+  (let ((atts (frame-monitor-attributes)))
+    (list
+     (assoc 'name atts)
+     (assoc 'geometry atts)
+     (assoc 'mm-size atts)
+     (assoc 'workarea atts))))
 
 (defun dispwatch--check-display()
   "Did it change? Run hooks if so."
   (let ((new (dispwatch--get-display)))
     (unless (equal new dispwatch-current-display)
       (setq dispwatch-current-display new)
-      (run-hook-with-args 'dispwatch-display-change-hooks dispwatch-current-display))))
+      (run-hook-with-args 'dispwatch-display-change-hooks
+			  (cons (display-pixel-width) (display-pixel-height))))))
 
 (provide 'dispwatch)
 
