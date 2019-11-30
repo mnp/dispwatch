@@ -23,8 +23,9 @@
 
 ;;; Commentary:
 
-;; This package watches the current display geometry (pixel width and height) and gives your
-;; hook a call if it changes.  Intended use case is plugging/unplugging a monitor.
+;; This package watches the current display configuration (name, pixel width and height,
+;; physical dimensions, and work area) and gives your hook a call if it changes.
+;; Intended use case is plugging/unplugging a monitor.
 ;;
 ;; Usage
 ;;
@@ -108,7 +109,7 @@ These hooks are run when a display change is detected.")
     (message "dispwatch disabled")))
 
 (defun dispwatch--get-display()
-  "Current display, to detect future changes."
+  "Current display configuration, to compare against future configurations."
   (let ((atts (frame-monitor-attributes)))
     (list
      (assoc 'name atts)

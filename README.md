@@ -1,7 +1,8 @@
 # Emacs dispwatch #
 
-This package watches the current display geometry (pixel width and height) and gives your
-hook a call if it changes.  Intended use case is plugging/unplugging a monitor.
+This package watches the current display configuration (name, pixel width and height,
+physical dimensions, and work area) and gives your hook a call if it changes.
+Intended use case is plugging/unplugging a monitor.
 
 ## Usage ##
 
