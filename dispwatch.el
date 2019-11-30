@@ -5,7 +5,7 @@
 ;; Author: Mitchell Perilstein <mitchell.perilstein@gmail.com>
 ;; Keywords: frames
 ;; URL: https://github.com/mnp/dispwatch
-;; Version: 0
+;; Version: 1
 ;; Package-Requires: ((emacs "24.1"))
 
 ;; This program is free software; you can redistribute it and/or modify
