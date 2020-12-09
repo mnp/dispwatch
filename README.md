@@ -1,3 +1,5 @@
+[![MELPA](https://melpa.org/packages/dispwatch-badge.svg)](https://melpa.org/#/dispwatch)
+
 # Emacs dispwatch #
 
 This package watches the current display configuration (name, pixel width and height,
