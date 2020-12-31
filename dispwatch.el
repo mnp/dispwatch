@@ -77,14 +77,17 @@ These hooks are run when a display change is detected.")
 
 (define-minor-mode dispwatch-mode
   "Toggle dispwatch mode.
-     Interactively with no argument, this command toggles the mode.
-     A positive prefix argument enables the mode, any other prefix
-     argument disables it.  From Lisp, argument omitted or nil enables
-     the mode, `toggle' toggles the state.
 
-     When dispwatch mode is enabled, the display configuration is checked every
-     `dispwatch-interval' seconds and if a change is observed, the hook functions in
-     `dispwatch-display-change-hooks' with the new display resolution."
+Interactively with no argument, this command toggles the mode. A
+positive prefix argument enables the mode, any other prefix
+argument disables it. From Lisp, argument omitted or nil enables
+the mode, `toggle' toggles the state.
+
+When dispwatch mode is enabled, the display configuration is
+checked every `dispwatch-interval' seconds and if a change is
+observed, the hook functions in `dispwatch-display-change-hooks'
+with the new display resolution."
+
   nil	      ;; The initial value.
   "dispwatch" ;; The indicator for the mode line.
   nil	      ;; The minor mode bindings.
