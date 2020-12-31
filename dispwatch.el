@@ -6,7 +6,7 @@
 ;; Keywords: frames
 ;; URL: https://github.com/mnp/dispwatch
 ;; Version: 1
-;; Package-Requires: ((emacs "24.1"))
+;; Package-Requires: ((emacs "24.4"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -67,7 +67,8 @@ Checking operation does not shell out of Emacs so there isn't much penalty."
 
 (defvar dispwatch-display-change-hooks nil
   "List of hook functions called when a display change is detected.
-Each takes one argument: the new display geometry string (WIDTHxHEIGHT).
+Each takes one argument: a cons pair of pixel width and height.
+The dimensions are determined by `frame-monitor-attributes'.
 These hooks are run when a display change is detected.")
 
 (defvar dispwatch-timer nil)
@@ -122,8 +123,10 @@ These hooks are run when a display change is detected.")
   (let ((new (dispwatch--get-display)))
     (unless (equal new dispwatch-current-display)
       (setq dispwatch-current-display new)
-      (run-hook-with-args 'dispwatch-display-change-hooks
-			  (cons (display-pixel-width) (display-pixel-height))))))
+      (let* ((geom (assoc 'geometry new))
+             (w (nth 3 geom))
+             (h (nth 4 geom)))
+        (run-hook-with-args 'dispwatch-display-change-hooks (cons w h))))))
 
 (provide 'dispwatch)
 
